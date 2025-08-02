@@ -1,56 +1,49 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AuthForm } from "@/components/AuthForm";
 import { Navbar } from "@/components/Navbar";
 import { Feed } from "@/pages/Feed";
 import { Profile } from "@/pages/Profile";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
-  const [currentUser, setCurrentUser] = useState(null);
   const [currentPage, setCurrentPage] = useState("feed");
-
-  useEffect(() => {
-    // Check for saved user in localStorage
-    const savedUser = localStorage.getItem("currentUser");
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-    }
-  }, []);
-
-  const handleLogin = (user: any) => {
-    setCurrentUser(user);
-    setCurrentPage("feed");
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser");
-    setCurrentUser(null);
-    setCurrentPage("feed");
-  };
+  const { user, profile, loading, signOut } = useAuth();
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page);
   };
 
-  if (!currentUser) {
-    return <AuthForm onLogin={handleLogin} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-3xl font-bold text-linkedin mb-4">LinkUp</div>
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !profile) {
+    return <AuthForm />;
   }
 
   const renderCurrentPage = () => {
     switch (currentPage) {
       case "profile":
-        return <Profile currentUser={currentUser} />;
+        return <Profile currentUser={profile} />;
       case "feed":
       default:
-        return <Feed currentUser={currentUser} />;
+        return <Feed currentUser={profile} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar 
-        currentUser={currentUser} 
+        currentUser={profile} 
         onNavigate={handleNavigate}
         currentPage={currentPage}
       />
@@ -61,7 +54,7 @@ const Index = () => {
 
       {/* Logout button for demo */}
       <Button
-        onClick={handleLogout}
+        onClick={signOut}
         variant="outline"
         size="sm"
         className="fixed bottom-4 right-4"

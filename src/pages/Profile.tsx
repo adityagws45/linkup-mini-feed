@@ -1,41 +1,32 @@
-import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PostCard } from "@/components/PostCard";
 import { Edit2, MapPin, Calendar, Link as LinkIcon, Mail } from "lucide-react";
+import { usePosts } from "@/hooks/usePosts";
+import { useAuth } from "@/hooks/useAuth";
+import { type Profile as UserProfile } from "@/lib/supabase";
 
 interface ProfileProps {
-  currentUser: any;
+  currentUser: UserProfile;
 }
 
 export const Profile = ({ currentUser }: ProfileProps) => {
-  // Mock user posts - in a real app, these would be fetched from your backend
-  const [userPosts] = useState([
-    {
-      id: 101,
-      author: currentUser,
-      content: "Excited to share that I've just completed my latest project! It's been an incredible journey of learning and growth. Looking forward to what's next! 🚀",
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      likes: 5,
-      comments: 2,
-      isLiked: false
-    },
-    {
-      id: 102,
-      author: currentUser,
-      content: "Reflecting on my career journey so far. Every challenge has been a stepping stone to growth. Grateful for all the amazing people I've met along the way.",
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      likes: 8,
-      comments: 1,
-      isLiked: true
-    }
-  ]);
+  const { user } = useAuth();
+  const { posts, loading, likePost } = usePosts(currentUser.id);
 
-  const handleLike = (postId: number) => {
-    // Handle like functionality
-    console.log("Liked post:", postId);
+  const handleLike = async (postId: string) => {
+    if (!user) return;
+    await likePost(postId, user.id);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="text-center text-muted-foreground">Loading profile...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -47,7 +38,7 @@ export const Profile = ({ currentUser }: ProfileProps) => {
           
           {/* Profile Picture */}
           <Avatar className="absolute -bottom-16 left-8 w-32 h-32 border-4 border-white">
-            <AvatarImage src={currentUser?.avatar} />
+            <AvatarImage src={currentUser?.avatar_url} />
             <AvatarFallback className="bg-linkedin text-white text-2xl">
               {currentUser?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
             </AvatarFallback>
@@ -115,7 +106,7 @@ export const Profile = ({ currentUser }: ProfileProps) => {
               <div className="text-sm text-muted-foreground">
                 <div className="flex justify-between">
                   <span>Posts</span>
-                  <span className="font-semibold">{userPosts.length}</span>
+                  <span className="font-semibold">{posts.length}</span>
                 </div>
               </div>
               <div className="text-sm text-muted-foreground">
@@ -141,8 +132,8 @@ export const Profile = ({ currentUser }: ProfileProps) => {
               <CardTitle className="text-lg">Posts</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {userPosts.length > 0 ? (
-                userPosts.map(post => (
+              {posts.length > 0 ? (
+                posts.map(post => (
                   <PostCard 
                     key={post.id} 
                     post={post} 

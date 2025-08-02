@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bell, Home, MessageSquare, Users, Briefcase, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { type Profile } from "@/lib/supabase";
 
 interface NavbarProps {
-  currentUser: any;
+  currentUser: Profile;
   onNavigate: (page: string) => void;
   currentPage: string;
 }
@@ -68,7 +69,7 @@ export const Navbar = ({ currentUser, onNavigate, currentPage }: NavbarProps) =>
               onClick={() => onNavigate("profile")}
             >
               <Avatar className="w-6 h-6">
-                <AvatarImage src={currentUser?.avatar} />
+                <AvatarImage src={currentUser?.avatar_url} />
                 <AvatarFallback className="bg-linkedin text-white text-xs">
                   {currentUser?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
                 </AvatarFallback>

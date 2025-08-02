@@ -4,19 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Image, Calendar, FileText, Smile } from "lucide-react";
+import { type Profile } from "@/lib/supabase";
 
 interface CreatePostProps {
-  currentUser: any;
-  onCreatePost: (content: string) => void;
+  currentUser: Profile;
+  onCreatePost: (content: string) => Promise<void>;
 }
 
 export const CreatePost = ({ currentUser, onCreatePost }: CreatePostProps) => {
   const [content, setContent] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (content.trim()) {
-      onCreatePost(content);
+      await onCreatePost(content);
       setContent("");
       setIsExpanded(false);
     }
@@ -27,7 +28,7 @@ export const CreatePost = ({ currentUser, onCreatePost }: CreatePostProps) => {
       <CardContent className="p-4">
         <div className="flex space-x-3">
           <Avatar className="w-12 h-12">
-            <AvatarImage src={currentUser?.avatar} />
+            <AvatarImage src={currentUser?.avatar_url} />
             <AvatarFallback className="bg-linkedin text-white">
               {currentUser?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
             </AvatarFallback>

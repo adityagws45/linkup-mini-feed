@@ -3,14 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
-interface AuthFormProps {
-  onLogin: (user: any) => void;
-}
-
-export const AuthForm = ({ onLogin }: AuthFormProps) => {
+export const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,31 +15,31 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
     bio: ""
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { signIn, signUp } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     
     if (!formData.email || !formData.password) {
-      toast.error("Please fill in all required fields");
+      setLoading(false);
       return;
     }
 
     if (!isLogin && !formData.name) {
-      toast.error("Please enter your name");
+      setLoading(false);
       return;
     }
 
-    // Mock authentication - in real app, this would call your backend
-    const user = {
-      id: Date.now(),
-      name: formData.name || "Demo User",
-      email: formData.email,
-      bio: formData.bio || "Professional looking to connect and share insights",
-      avatar: `https://api.dicebear.com/6.x/initials/svg?seed=${formData.name || formData.email}`
-    };
-
-    localStorage.setItem("currentUser", JSON.stringify(user));
-    onLogin(user);
-    toast.success(isLogin ? "Welcome back!" : "Account created successfully!");
+    try {
+      if (isLogin) {
+        await signIn(formData.email, formData.password);
+      } else {
+        await signUp(formData.email, formData.password, formData.name, formData.bio);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,8 +120,12 @@ export const AuthForm = ({ onLogin }: AuthFormProps) => {
               </div>
             )}
             
-            <Button type="submit" className="w-full bg-linkedin hover:bg-linkedin-dark">
-              {isLogin ? "Sign In" : "Create Account"}
+            <Button 
+              type="submit" 
+              className="w-full bg-linkedin hover:bg-linkedin-dark"
+              disabled={loading}
+            >
+              {loading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
             </Button>
             
             <Button 
