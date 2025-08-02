@@ -52,6 +52,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				linkedin: {
+					DEFAULT: 'hsl(var(--linkedin-blue))',
+					light: 'hsl(var(--linkedin-blue-light))',
+					dark: 'hsl(var(--linkedin-blue-dark))'
+				},
+				success: 'hsl(var(--success))',
+				warning: 'hsl(var(--warning))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
