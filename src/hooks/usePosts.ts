@@ -12,29 +12,41 @@ export const usePosts = (userId?: string) => {
 
   const fetchPosts = async () => {
     try {
-      let query = supabase
+      let postsQuery = supabase
         .from('posts')
-        .select(`
-          *,
-          profiles!posts_user_id_fkey (
-            id,
-            name,
-            email,
-            bio,
-            avatar_url
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (userId) {
-        query = query.eq('user_id', userId);
+        postsQuery = postsQuery.eq('user_id', userId);
       }
 
-      const { data, error } = await query;
+      const { data: postsData, error: postsError } = await postsQuery;
+      if (postsError) throw postsError;
 
-      if (error) throw error;
+      if (!postsData || postsData.length === 0) {
+        setPosts([]);
+        return;
+      }
 
-      setPosts(data || []);
+      // Get unique user IDs
+      const userIds = [...new Set(postsData.map(post => post.user_id))];
+      
+      // Fetch profiles for these users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Combine posts with profiles
+      const postsWithProfiles = postsData.map(post => ({
+        ...post,
+        profiles: profilesData?.find(profile => profile.id === post.user_id) || null
+      }));
+
+      setPosts(postsWithProfiles);
     } catch (error: any) {
       console.error('Error fetching posts:', error);
       toast.error('Failed to load posts');
@@ -45,7 +57,7 @@ export const usePosts = (userId?: string) => {
 
   const createPost = async (content: string, currentUserId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data: newPost, error } = await supabase
         .from('posts')
         .insert([
           {
@@ -53,23 +65,29 @@ export const usePosts = (userId?: string) => {
             content,
           },
         ])
-        .select(`
-          *,
-          profiles!posts_user_id_fkey (
-            id,
-            name,
-            email,
-            bio,
-            avatar_url
-          )
-        `)
+        .select('*')
         .single();
 
       if (error) throw error;
 
-      setPosts(prev => [data, ...prev]);
+      // Fetch the user's profile
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUserId)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // Combine post with profile
+      const postWithProfile = {
+        ...newPost,
+        profiles: userProfile
+      };
+
+      setPosts(prev => [postWithProfile, ...prev]);
       toast.success('Post created successfully!');
-      return { data, error: null };
+      return { data: postWithProfile, error: null };
     } catch (error: any) {
       toast.error(error.message);
       return { data: null, error };
