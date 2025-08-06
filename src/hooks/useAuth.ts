@@ -58,27 +58,24 @@ export const useAuth = () => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            name,
+            bio: bio || ''
+          }
+        }
       });
 
       if (error) throw error;
 
-      if (data.user) {
-        // Create profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              email,
-              name,
-              bio: bio || '',
-              avatar_url: `https://api.dicebear.com/6.x/initials/svg?seed=${name}`,
-            },
-          ]);
-
-        if (profileError) throw profileError;
-        
-        toast.success('Account created successfully! Please check your email to verify your account.');
+      // Don't create profile here - let the trigger handle it
+      // Don't automatically sign in - require separate sign in
+      if (data.user && !data.session) {
+        toast.success('Account created successfully! Please check your email to verify your account, then sign in.');
+      } else if (data.session) {
+        // If user is automatically signed in, sign them out
+        await supabase.auth.signOut();
+        toast.success('Account created successfully! Please sign in to continue.');
       }
 
       return { data, error: null };

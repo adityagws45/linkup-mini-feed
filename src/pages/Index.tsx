@@ -3,6 +3,10 @@ import { AuthForm } from "@/components/AuthForm";
 import { Navbar } from "@/components/Navbar";
 import { Feed } from "@/pages/Feed";
 import { Profile } from "@/pages/Profile";
+import { Network } from "@/pages/Network";
+import { Jobs } from "@/pages/Jobs";
+import { Messaging } from "@/pages/Messaging";
+import { Notifications } from "@/pages/Notifications";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,33 +39,13 @@ const Index = () => {
       case "profile":
         return <Profile currentUser={profile} />;
       case "network":
-        return (
-          <div className="max-w-2xl mx-auto py-8">
-            <h1 className="text-2xl font-bold mb-4">My Network</h1>
-            <p className="text-muted-foreground">Network features coming soon!</p>
-          </div>
-        );
+        return <Network currentUser={profile} />;
       case "jobs":
-        return (
-          <div className="max-w-2xl mx-auto py-8">
-            <h1 className="text-2xl font-bold mb-4">Jobs</h1>
-            <p className="text-muted-foreground">Job search features coming soon!</p>
-          </div>
-        );
+        return <Jobs />;
       case "messages":
-        return (
-          <div className="max-w-2xl mx-auto py-8">
-            <h1 className="text-2xl font-bold mb-4">Messaging</h1>
-            <p className="text-muted-foreground">Messaging features coming soon!</p>
-          </div>
-        );
+        return <Messaging currentUser={profile} />;
       case "notifications":
-        return (
-          <div className="max-w-2xl mx-auto py-8">
-            <h1 className="text-2xl font-bold mb-4">Notifications</h1>
-            <p className="text-muted-foreground">Notifications coming soon!</p>
-          </div>
-        );
+        return <Notifications currentUser={profile} />;
       case "feed":
       default:
         return <Feed currentUser={profile} />;
