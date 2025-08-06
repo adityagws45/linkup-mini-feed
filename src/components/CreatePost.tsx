@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Image, Calendar, FileText, Smile } from "lucide-react";
 import { type Profile } from "@/lib/supabase";
+import { toast } from "sonner";
 
 interface CreatePostProps {
   currentUser: Profile;
@@ -21,6 +22,25 @@ export const CreatePost = ({ currentUser, onCreatePost }: CreatePostProps) => {
       setContent("");
       setIsExpanded(false);
     }
+  };
+
+  const handlePhotoClick = () => {
+    toast.info("Photo upload feature coming soon!");
+  };
+
+  const handleDocumentClick = () => {
+    toast.info("Document upload feature coming soon!");
+  };
+
+  const handleEventClick = () => {
+    toast.info("Event creation feature coming soon!");
+  };
+
+  const handleFeelingClick = () => {
+    const feelings = ["😊 Happy", "😢 Sad", "😍 Excited", "😴 Tired", "🤔 Thoughtful", "💪 Motivated"];
+    const randomFeeling = feelings[Math.floor(Math.random() * feelings.length)];
+    setContent(prev => prev + ` feeling ${randomFeeling}`);
+    toast.success(`Added feeling: ${randomFeeling}`);
   };
 
   return (
@@ -47,19 +67,19 @@ export const CreatePost = ({ currentUser, onCreatePost }: CreatePostProps) => {
               <div className="mt-4 space-y-3">
                 {/* Media options */}
                 <div className="flex items-center space-x-4">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={handlePhotoClick}>
                     <Image className="w-5 h-5 mr-2" />
                     Photo
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={handleDocumentClick}>
                     <FileText className="w-5 h-5 mr-2" />
                     Document
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={handleEventClick}>
                     <Calendar className="w-5 h-5 mr-2" />
                     Event
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={handleFeelingClick}>
                     <Smile className="w-5 h-5 mr-2" />
                     Feeling
                   </Button>

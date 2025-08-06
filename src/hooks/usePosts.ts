@@ -16,7 +16,7 @@ export const usePosts = (userId?: string) => {
         .from('posts')
         .select(`
           *,
-          profiles (
+          profiles!posts_user_id_fkey (
             id,
             name,
             email,
@@ -55,7 +55,7 @@ export const usePosts = (userId?: string) => {
         ])
         .select(`
           *,
-          profiles (
+          profiles!posts_user_id_fkey (
             id,
             name,
             email,
